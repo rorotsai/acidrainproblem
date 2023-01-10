@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang = "en">
+  <head>
+    <meta charset = "UTF-8"/>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+    <script type="text/javascript">
+        const api_url1 = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0004-001?Authorization=CWB-CE5FDEC4-6DB9-4E7E-8590-201B5A492B47&parameterName=mean'
+        const api_url2 = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0004-001?Authorization=CWB-CE5FDEC4-6DB9-4E7E-8590-201B5A492B47&parameterName=max'
+        const api_url3 = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0004-001?Authorization=CWB-CE5FDEC4-6DB9-4E7E-8590-201B5A492B47&parameterName=min'
+        var parameter1;
+        var parameter2;
+        var parameter3;
+        async function getRain(){
+        const response1 = await fetch(api_url1);
+        const response2 = await fetch(api_url2)
+        const response3 = await fetch(api_url3)
+        const data1 = await response1.json();
+        const data2 = await response2.json();
+        const data3 = await response3.json();
+        var parameterValueformean = data1.records.weatherElement[0].location[3].parameter[0].parameterValue;
+        var parameterValueformax  = data2.records.weatherElement[0].location[3].parameter[0].parameterValue;
+        var parameterValueformin  = data3.records.weatherElement[0].location[3].parameter[0].parameterValue;
+        parameter1 = parameterValueformean;
+        parameter2 = parameterValueformax;
+        parameter3 = parameterValueformin;
+        var source = data1.records.weatherElement[0].elementName;
+        var name1 = data1.records.weatherElement[0].location[3].parameter[0].parameterName;
+        var name2 = data2.records.weatherElement[0].location[3].parameter[0].parameterName;
+        var name3 = data3.records.weatherElement[0].location[3].parameter[0].parameterName;
+        document.getElementById('value1').textContent = parameterValueformean;
+        document.getElementById('value2').textContent = parameterValueformax;
+        document.getElementById('value3').textContent = parameterValueformin;
+        document.getElementById('source').textContent = source;
+        console.log(data1);
+        console.log(data2);
+        console.log(data3);
+        console.log(source);
+        console.log(name1);
+        console.log(parameterValueformean);
+        console.log(name2);
+        console.log(parameterValueformax);
+        console.log(name3);
+        console.log(parameterValueformin);
+        }
+        getRain();
+        
+        google.charts.load('current', {'packages':['gauge']});
+        google.charts.setOnLoadCallback(drawChart);
+        function drawChart() {
+         var data4 = google.visualization.arrayToDataTable([
+           ['Label', 'Value'],
+           ['Lowest', 7],
+           ['average', 7],
+           ['Highest', 7]
+         ]);
+
+         var options = {
+           width: 400, height: 120,
+           redFrom: 0, redTo: 4.2,
+           yellowFrom:4.2, yellowTo: 5.5,
+           minorTicks: 0.5,max:14,min:0
+         };//gauge panel setting 
+ 
+         var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+         chart.draw(data4, options);
+ 
+         setInterval(function() {
+           data4.setValue(0, 1, parameter3);
+           chart.draw(data4, options);
+         },1000);
+         setInterval(function() {
+           data4.setValue(1, 1, parameter1);
+           chart.draw(data4, options);
+         },1000);
+         setInterval(function() {
+           data4.setValue(2, 1, parameter2);
+           chart.draw(data4, options);
+         },1000);
+       }
+     </script>
+  </head>
+
+<body>
+<h1>Acid Rain Problem</h1>
+<p>
+  雨水平均酸鹼度:<span id="value1"></span><br>
+  雨水最大酸鹼度:<span id="value2"></span><br>
+  雨水最小酸鹼度:<span id="value3"></span><br>
+  資料來源:<span id ="source"></span><br>
+</p>
+
+<div id="chart_div" style="width: 400px; height: 120px;"></div>
+
+<div id="button_container1">
+        <button id="upload1" onclick=> 有酸雨仍出門從事戶外活動 </button>
+        </div>
+<br>
+        <div id="button_container2">
+        <button id="upload2" onclick=> 有酸雨不出門從事戶外活動</button>
+        </div>
+        <br>
+        Code 統整<br>
+        Variable Problem Fixed<br>
+        Last edited time 112/01/10<br>
+
+</body>
+</html>
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-analytics.js";
+    import { getDatabase , set , ref , push , child} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+    apiKey: "AIzaSyCeefGauL9DRlcVurVM4DlMPHTuiGQJAX4",
+    authDomain: "acidrainproblem.firebaseapp.com",
+    databaseURL: "https://acidrainproblem-default-rtdb.firebaseio.com",
+    projectId: "acidrainproblem",
+    storageBucket: "acidrainproblem.appspot.com",
+    messagingSenderId: "801810923057",
+    appId: "1:801810923057:web:f9a41660c06dca10825f10",
+    measurementId: "G-FQTJGT6DTF"
+  };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    // Initialize Realtime Database and get a reference to the service
+    const database = getDatabase(app);
+
+    upload2.addEventListener('click',(e) =>{
+    const userId = push(child(ref(database),'users')).key;
+    set(ref(database,'不會出門/'+ userId ), {
+    timestamp : Date()
+    });
+    alert("感謝投票");
+});
+    upload1.addEventListener('click',(e) =>{
+    const userId = push(child(ref(database),'users')).key;
+    set(ref(database,'會出門/'+ userId ), {
+    timestamp : Date()
+    });
+    alert("感謝投票");
+});
+  </script>
